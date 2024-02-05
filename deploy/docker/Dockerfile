@@ -19,7 +19,7 @@ COPY . /go/kuiper
 
 WORKDIR /go/kuiper
 
-RUN make build_with_edgex
+RUN make build_full
 
 FROM alpine:3.16
 

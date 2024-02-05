@@ -232,6 +232,7 @@ jobs:
           - sources/sql
           - sources/video
           - sources/kafka
+          - source/rocketmq
           - functions/accumulateWordCount
           - functions/countPlusOne
           - functions/echo

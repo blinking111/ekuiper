@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !full
+package main
 
-package server
-
-var (
-	NativeSourcePlugin   = []string{"random", "zmq", "sql", "video", "kafka", "rocketmq"}
-	NativeSinkPlugin     = []string{"image", "influx", "influx2", "tdengine", "zmq", "kafka", "sql"}
-	NativeFunctionPlugin = []string{"accumulateWordCount", "countPlusOne", "echo", "geohash", "image", "labelImage", "tfLite"}
+import (
+	rocketmq "github.com/lf-edge/ekuiper/extensions/sources/rocketmq/ext"
+	"github.com/lf-edge/ekuiper/pkg/api"
 )
+
+func Rocketmq() api.Source {
+	return rocketmq.GetSource()
+}

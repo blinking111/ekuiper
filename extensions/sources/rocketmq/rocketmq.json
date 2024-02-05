@@ -1,0 +1,73 @@
+{
+  "about": {
+    "trial": true,
+    "author": {
+      "name": "EMQ",
+      "email": "contact@emqx.io",
+      "company": "EMQ Technologies Co., Ltd",
+      "website": "https://www.emqx.io"
+    },
+    "helpUrl": {
+      "en_US": "https://ekuiper.org/docs/en/latest/guide/sources/plugin/kafka.html",
+      "zh_CN": "https://ekuiper.org/docs/zh/latest/guide/sources/plugin/kafka.html"
+    },
+    "description": {
+      "en_US": "This a source for RocketMq, it can be used for consuming the data from RocketMq.",
+      "zh_CN": "从 RocketMq 中消费消息"
+    }
+  },
+  "libs": [
+    "github.com/apache/rocketmq-client-go/v2@v2.1.2"
+  ],
+  "dataSource": {
+    "default": "topic1",
+    "hint": {
+      "en_US": "The MQ topic to subscribe to, e.g. topic",
+      "zh_CN": "将要订阅的 MQ 主题， 例如 topic1"
+    },
+    "label": {
+      "en_US": "Data Source (MQ Topic)",
+      "zh_CN": "数据源（MQ 主题）"
+    }
+  },
+  "properties": {
+    "default":[{
+      "name": "groupName",
+      "default": "groupName",
+      "optional": false,
+      "control": "text",
+      "type": "string",
+      "hint": {
+        "en_US": "The name for consumer group",
+        "zh_CN": "消费组名称"
+      },
+      "label": {
+        "en_US": "consumer name",
+        "zh_CN": "消费组名称"
+      }
+    },
+    {
+      "name": "nameServer",
+      "default": "",
+      "optional": true,
+      "control": "text",
+      "type": "string",
+      "hint": {
+        "en_US": "The Kafka name server address",
+        "zh_CN": "RocketMQ的nameServr地址"
+      },
+      "label": {
+        "en_US": "nameServer",
+        "zh_CN": "服务端地址"
+      }
+    }
+  ]},
+  "node": {
+    "category": "source",
+    "icon": "iconPath",
+    "label": {
+      "en": "RocketMQ",
+      "zh": "RocketMQ"
+    }
+  }
+}

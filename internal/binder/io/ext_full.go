@@ -24,6 +24,7 @@ import (
 	sqlSink "github.com/lf-edge/ekuiper/extensions/sinks/sql/ext"
 	kafkaSrc "github.com/lf-edge/ekuiper/extensions/sources/kafka/ext"
 	random "github.com/lf-edge/ekuiper/extensions/sources/random/ext"
+	rocketmq "github.com/lf-edge/ekuiper/extensions/sources/rocketmq/ext"
 	sql "github.com/lf-edge/ekuiper/extensions/sources/sql/ext"
 	video "github.com/lf-edge/ekuiper/extensions/sources/video/ext"
 	"github.com/lf-edge/ekuiper/pkg/api"
@@ -34,6 +35,9 @@ func init() {
 	sources["video"] = func() api.Source { return video.GetSource() }
 	sources["sql"] = func() api.Source { return sql.GetSource() }
 	sources["kafka"] = func() api.Source { return kafkaSrc.GetSource() }
+	sources["rocketmq"] = func() api.Source {
+		return rocketmq.GetSource()
+	}
 	lookupSources["sql"] = func() api.LookupSource { return sql.GetLookup() }
 	sinks["image"] = func() api.Sink { return image.GetSink() }
 	sinks["influx"] = func() api.Sink { return influx.GetSink() }
