@@ -21,9 +21,12 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/lf-edge/ekuiper/internal/conf"
+	"github.com/lf-edge/ekuiper/internal/io"
 	"github.com/lf-edge/ekuiper/pkg/api"
 	"github.com/lf-edge/ekuiper/pkg/cast"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 type RocketMqSource struct {
@@ -68,9 +71,7 @@ func (s *RocketMqSource) Configure(topic string, props map[string]interface{}) e
 		return err
 	}
 	mqConsumer, err := rocketmq.NewPushConsumer(
-		// 指定 Group 可以实现消费者负载均衡进行消费，并且保证他们的Topic+Tag要一样。
-		// 如果同一个 GroupID 下的不同消费者实例，订阅了不同的 Topic+Tag 将导致在对Topic 的消费队列进行负载均衡的时候产生不正确的结果，最终导致消息丢失。(官方源码设计)
-		consumer.WithGroupName(rConf.GroupName),
+		consumer.WithGroupName(rConf.GroupName+"-"+generateRandomString(5)),
 		consumer.WithNameServer(strings.Split(rConf.NameServer, ",")),
 	)
 	if err != nil {
@@ -93,15 +94,19 @@ func (s *RocketMqSource) Open(ctx api.StreamContext, chans chan<- api.SourceTupl
 			return
 		default:
 		}
+		meta := make(map[string]interface{})
+		meta["topic"] = s.topic
 		_ = s.consumer.Subscribe(s.topic, consumer.MessageSelector{}, func(_ context.Context,
 			msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+			tuples := make([]api.SourceTuple, 0, len(msgs))
 			for _, msg := range msgs {
 				logger.Infof("rocket mq message is %+v ", msg)
 				data, _ := ctx.Decode(msg.Body)
 				rcvTime := conf.GetNow()
-				chans <- api.NewDefaultSourceTupleWithTime(data, nil, rcvTime)
+				tuples = append(tuples, api.NewDefaultSourceTupleWithTime(data, meta, rcvTime))
 				logger.Infof("subscribe callback: %+v \n", msg)
 			}
+			io.ReceiveTuples(ctx, chans, tuples)
 			// 消费成功，进行ack确认
 			return consumer.ConsumeSuccess, nil
 		})
@@ -120,4 +125,28 @@ func (s *RocketMqSource) Close(_ api.StreamContext) error {
 
 func GetSource() api.Source {
 	return &RocketMqSource{}
+}
+
+func generateRandomString(length int) string {
+	// 定义可选的字符集合
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	// 创建随机数生成器，并设置种子为当前时间的纳秒数
+	rand.Seed(time.Now().UnixNano())
+
+	// 创建一个切片用于存储生成的字符
+	result := make([]byte, length)
+
+	// 生成随机字符
+	for i := 0; i < length; i++ {
+		// 随机选择一个索引
+		index := rand.Intn(len(charset))
+		// 从字符集合中取出对应索引的字符
+		result[i] = charset[index]
+		// 从字符集合中移除已选择的字符，以确保不会生成重复的字符
+		charset = charset[:index] + charset[index+1:]
+	}
+
+	// 将切片转换为字符串并返回
+	return string(result)
 }
